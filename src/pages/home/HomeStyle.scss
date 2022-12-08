@@ -1,0 +1,40 @@
+.root {
+  background: url("../../assets/bg1.png");
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 700px;
+
+  .container {
+    height: 100%;
+  }
+
+  .grid1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 100px;
+    .title {
+      font-size: 40px;
+      font-weight: 700;
+      font-family: "Poppins", sans-serif;
+    }
+    .sub {
+      width: 547px;
+    }
+    .btn-clasification {
+      width: 547px;
+      margin-top: 42px;
+      background-color: white;
+      color: black;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+  }
+
+  .grid2 {
+    .img-bg {
+      height: 630px;
+      width: calc(100vw - 870px);
+    }
+  }
+}

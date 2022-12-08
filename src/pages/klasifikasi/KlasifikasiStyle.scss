@@ -1,0 +1,64 @@
+.root-klasifikasi {
+  height: 100%;
+
+  .container {
+    height: 100%;
+    padding: 32px;
+
+    .grid-1 {
+      .preview-image {
+        height: 80%;
+        width: 95%;
+        background-color: transparent;
+        border: 1px dashed #000000;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+
+        .icon {
+          height: 100px;
+          width: 100px;
+          background-color: aqua;
+        }
+        .text > p {
+          color: #809ea5;
+          font-size: 20px;
+          font-weight: 700;
+        }
+      }
+      .btn-upload {
+        width: 95%;
+        margin-top: 42px;
+        background-color: white;
+        color: black;
+        font-weight: 600;
+        border-radius: 8px;
+        height: 30px;
+      }
+    }
+
+    .grid-2 {
+      display: flex;
+      justify-content: center;
+      .card-custom {
+        width: 458px;
+        height: 100%;
+        display: flex;
+        border-radius: 8px;
+
+        justify-content: center;
+        .title {
+          font-size: 32px;
+          font-weight: 700;
+          display: flex;
+          justify-content: center;
+        }
+        .label {
+          font-size: 18px;
+          font-weight: 500;
+          margin-top: 24px;
+        }
+      }
+    }
+  }
+}
