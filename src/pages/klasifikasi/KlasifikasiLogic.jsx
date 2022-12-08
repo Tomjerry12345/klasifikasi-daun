@@ -63,7 +63,7 @@ const KlasifikasiLogic = () => {
 
     // if (createModel === true) {
     alert(`stateSum => ${stateSum}`);
-    if (stateSum > 1) {
+    if (stateSum > 0) {
       preparation();
     } else {
       if (mobilenet === null) {
