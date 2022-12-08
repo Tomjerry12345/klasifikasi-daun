@@ -48,6 +48,8 @@ const KlasifikasiLogic = () => {
 
   const createModel = false;
 
+  const path = process.env.PUBLIC_URL;
+
   // useEffect(() => {}, [image.preview]);
 
   useEffect(() => {
@@ -88,9 +90,9 @@ const KlasifikasiLogic = () => {
   }, [image.preview]);
 
   const preparation = () => {
-    olahImage("dataset/cacar_daun_cengkeh", 0);
-    olahImage("dataset/embun_jelaga", 1);
-    olahImage("dataset/kutu_daun", 2);
+    olahImage(`${path}dataset/cacar_daun_cengkeh}`, 0);
+    olahImage(`${path}dataset/embun_jelaga`, 1);
+    olahImage(`${path}dataset/kutu_daun`, 2);
   };
 
   const olahImage = (base, y) => {
