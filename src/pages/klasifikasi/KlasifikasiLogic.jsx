@@ -62,6 +62,7 @@ const KlasifikasiLogic = () => {
     // console.log("load model", loadModel());
 
     // if (createModel === true) {
+    alert(`stateSum => ${stateSum}`);
     if (stateSum > 1) {
       preparation();
     } else {
@@ -96,7 +97,7 @@ const KlasifikasiLogic = () => {
   };
 
   const olahImage = (base, y) => {
-    console.log("base", base)
+    console.log("base", base);
     for (let i = 1; i <= 100; i++) {
       const im = new Image();
       im.src = `/${base}/${i}.jpg`;
