@@ -91,7 +91,7 @@ const KlasifikasiLogic = () => {
   }, [image.preview]);
 
   const preparation = () => {
-    olahImage(`${path}dataset/cacar_daun_cengkeh}`, 0);
+    olahImage(`${path}dataset/cacar_daun_cengkeh`, 0);
     olahImage(`${path}dataset/embun_jelaga`, 1);
     olahImage(`${path}dataset/kutu_daun`, 2);
   };
