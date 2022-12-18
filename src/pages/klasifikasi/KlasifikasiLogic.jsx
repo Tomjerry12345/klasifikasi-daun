@@ -62,7 +62,6 @@ const KlasifikasiLogic = () => {
     // console.log("load model", loadModel());
 
     // if (createModel === true) {
-    alert(`stateSum => ${stateSum}`);
     if (stateSum > 0) {
       preparation();
     } else {
