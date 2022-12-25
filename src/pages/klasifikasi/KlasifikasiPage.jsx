@@ -61,14 +61,6 @@ const KlasifikasiPage = () => {
             )}
           </div>
           <input type="file" accept="image/*" style={{ display: "none" }} ref={value.fileInputRef} onChange={func.onChangeUploadImage} />
-          {/* <Button
-            className="btn-upload"
-            variant="contained"
-            onClick={uploadClick}
-            disabled
-          >
-            Upload Image
-          </Button> */}
           <LoadingButton className="btn-upload" loading={value.loading} variant="contained" onClick={!value.loading ? func.uploadClick : null}>
             {!value.loading ? "Upload Image" : ""}
           </LoadingButton>

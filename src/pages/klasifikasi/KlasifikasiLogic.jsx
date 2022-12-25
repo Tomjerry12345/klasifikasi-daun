@@ -1,7 +1,5 @@
-import { createRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as tf from "@tensorflow/tfjs";
-import * as tfvis from "@tensorflow/tfjs-vis";
-import { publicUrl } from "../../values/Constant";
 
 import cacarDaunCengkeh from "../../assets/cacar-daun.jpg";
 import embunJelaga from "../../assets/embun-jelaga.jpg";
@@ -34,8 +32,6 @@ const KlasifikasiLogic = () => {
     image: "",
   });
 
-  const sumData = 298;
-
   const [mobilenet, setMobileNet] = useState(null);
 
   const [customModel, setCustomModel] = useState();
@@ -50,36 +46,30 @@ const KlasifikasiLogic = () => {
 
   const path = process.env.PUBLIC_URL;
 
-  // useEffect(() => {}, [image.preview]);
+  const jumlahData = 40;
+  let proses = 1;
+  let endProses = jumlahData * CLASS_NAMES.length;
 
   useEffect(() => {
-    const loadModel = async () => {
-      const model = await tf.loadLayersModel(`${publicUrl}/model/my-model.json`);
-      setCustomModel(model);
-      setLoading(false);
-    };
+    // const loadModel = async () => {
+    //   const model = await tf.loadLayersModel(`${publicUrl}/model/my-model.json`);
+    //   setCustomModel(model);
+    //   setLoading(false);
+    // };
 
-    // console.log("load model", loadModel());
+    console.log("stateSum", stateSum);
 
-    // if (createModel === true) {
-    alert(`stateSum => ${stateSum}`);
-    if (stateSum > 0) {
+    if (stateSum > 1) {
       preparation();
     } else {
       if (mobilenet === null) {
         loadMobileNetFeatureModel();
       }
     }
-    // } else {
-    //   loadModel();
-    // }
   }, [mobilenet]);
 
   useEffect(() => {
-    // console.log("trainingDataInputs", trainingDataInputs);
-    // console.log("trainingDataOutput", trainingDataOutputs);
-
-    if (trainingDataInputs.length >= sumData) {
+    if (trainingDataInputs.length >= jumlahData) {
       train();
     }
   }, [trainingDataInputs]);
@@ -90,49 +80,9 @@ const KlasifikasiLogic = () => {
     }
   }, [image.preview]);
 
-  const preparation = () => {
-    olahImage(`${path}dataset/cacar_daun_cengkeh`, 0);
-    olahImage(`${path}dataset/embun_jelaga`, 1);
-    olahImage(`${path}dataset/kutu_daun`, 2);
-  };
-
-  const olahImage = (base, y) => {
-    console.log("base", base);
-    for (let i = 1; i <= 100; i++) {
-      const im = new Image();
-      im.src = `/${base}/${i}.jpg`;
-
-      im.onload = () => {
-        const width = im.naturalWidth;
-        const height = im.naturalHeight;
-        console.log("image", im.src);
-        console.log("y", y);
-        //   const a = tf.browser.fromPixels(im, 4);
-        //   a.print();
-        //   console.log(a.shape);
-
-        getImageData(im, y);
-
-        // ctx.font = "30px Arial";
-        // ctx.fillText("Processing....", 10, 50);
-      };
-    }
-  };
-
-  const getImageData = (image, y) => {
-    let imageFeatures = tf.tidy(function () {
-      let imageFrameAsTensor = tf.browser.fromPixels(image, 3);
-      let resizedTensorFrame = tf.image.resizeBilinear(imageFrameAsTensor, [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH], true);
-      let normalizedTensorFrame = resizedTensorFrame.div(255);
-      return mobilenet.predict(normalizedTensorFrame.expandDims()).squeeze();
-    });
-
-    setTrainingDataInputs((old) => [...old, imageFeatures]);
-    setTrainingDataOutputs((old) => [...old, y]);
-  };
-
   async function loadMobileNetFeatureModel() {
-    const URL = "https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_small_100_224/feature_vector/5/default/1";
+    const URL =
+      "https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_small_100_224/feature_vector/5/default/1";
 
     const mobilenet1 = await tf.loadGraphModel(URL, { fromTFHub: true });
 
@@ -140,7 +90,9 @@ const KlasifikasiLogic = () => {
 
     // Warm up the model by passing zeros through it once.
     tf.tidy(function () {
-      let answer = mobilenet1.predict(tf.zeros([1, MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH, 3]));
+      let answer = mobilenet1.predict(
+        tf.zeros([1, MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH, 3])
+      );
     });
 
     // head();
@@ -150,45 +102,43 @@ const KlasifikasiLogic = () => {
     setMobileNet(mobilenet1);
   }
 
-  const model = () => {
-    let inputShape = [1024];
-    // let inputShape = [224, 224, 3];
-    let units = 128;
-    let activation = "softmax";
-    let jumlahClass = 3;
+  const preparation = async () => {
+    const pathCacarDaunCengkeh = `${path}dataset/cacar_daun_cengkeh`;
+    const pathEmbunJelaga = `${path}dataset/embun_jelaga`;
+    const pathKutuDaun = `${path}dataset/kutu_daun`;
 
-    let model = tf.sequential();
-    model.add(tf.layers.dense({ inputShape: inputShape, units: units, activation: "relu" }));
-    model.add(tf.layers.dense({ units: jumlahClass, activation: activation }));
+    const cacarDaun = await olahImage(pathCacarDaunCengkeh);
+    const embunJelaga = await olahImage(pathEmbunJelaga);
+    const kutuDaun = await olahImage(pathKutuDaun);
 
-    model.summary();
+    const training = [];
+    const outputs = [];
 
-    // Compile the model with the defined optimizer and specify a loss function to use.
-    model.compile({
-      // Adam changes the learning rate over time which is useful.
-      optimizer: "adam",
-      // Use the correct loss function. If 2 classes of data, must use binaryCrossentropy.
-      // Else categoricalCrossentropy is used if more than 2 classes.
-      loss: CLASS_NAMES.length === 2 ? "binaryCrossentropy" : "categoricalCrossentropy",
-      // As this is a classification problem you can record accuracy in the logs too!
-      metrics: ["accuracy"],
+    cacarDaun.forEach((val) => {
+      training.push(val);
+      outputs.push(0);
     });
-    return model;
-  };
 
-  async function train() {
+    embunJelaga.forEach((val) => {
+      training.push(val);
+      outputs.push(1);
+    });
+
+    kutuDaun.forEach((val) => {
+      training.push(val);
+      outputs.push(2);
+    });
+
+    // setTrainingDataInputs((old) => [...old, imageFeatures]);
+    // setTrainingDataOutputs((old) => [...old, y]);
+
+    console.log("outputs", outputs);
+
     let class0 = 0;
     let class1 = 0;
     let class2 = 0;
 
-    let shuffle = true;
-    let batchSize = 5;
-    let epochs = 10;
-
-    // console.log("trainingDataInputs", trainingDataInputs);
-    console.log("trainingDataOutputs", trainingDataOutputs);
-
-    trainingDataOutputs.forEach((val) => {
+    outputs.forEach((val) => {
       if (val === 0) {
         class0 += 1;
       } else if (val === 1) {
@@ -204,10 +154,107 @@ const KlasifikasiLogic = () => {
     console.log("class1", class1);
     console.log("class2", class2);
 
+    setTrainingDataInputs(training);
+    setTrainingDataOutputs(outputs);
+
+    // console.log("test")
+  };
+
+  const olahImage = (path) => {
+    const image = [];
+
+    for (let i = 1; i <= jumlahData; i++) {
+      image.push(`${path}/${i}.jpg`);
+    }
+
+    const res = Promise.all(
+      image.map((val) => {
+        const im = new Image();
+        im.src = val;
+
+        return new Promise((resolve, rejected) => {
+          im.onload = () => {
+            // console.log("image", im.src);
+            const p = endProses / 100;
+            console.log(`proses`, `${parseFloat(proses / p).toFixed(2)}%`);
+            const image = getImageData(im);
+            proses++;
+            resolve(image);
+            // resolve(im.src);
+          };
+          im.onerror = () => {
+            console.log("error", im.src);
+            // getImageData(im, y[z]);
+            rejected();
+          };
+        });
+      })
+    );
+
+    return res;
+  };
+
+  const getImageData = (image) => {
+    let imageFeatures = tf.tidy(function () {
+      let imageFrameAsTensor = tf.browser.fromPixels(image, 3);
+      let resizedTensorFrame = tf.image.resizeBilinear(
+        imageFrameAsTensor,
+        [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH],
+        true
+      );
+      let normalizedTensorFrame = resizedTensorFrame.div(255);
+      // const cast = resizedTensorFrame.cast("float32");
+      return mobilenet.predict(normalizedTensorFrame.expandDims()).squeeze();
+    });
+
+    return imageFeatures;
+  };
+
+  const model = () => {
+    let inputShape = [1024];
+    // let inputShape = [224, 224, 3];
+    let units = 128;
+    let activation = "softmax";
+    let jumlahClass = 3;
+
+    let model = tf.sequential();
+    model.add(
+      tf.layers.dense({
+        inputShape: inputShape,
+        units: units,
+        activation: "relu",
+      })
+    );
+    model.add(tf.layers.dense({ units: jumlahClass, activation: activation }));
+
+    model.summary();
+
+    // Compile the model with the defined optimizer and specify a loss function to use.
+    model.compile({
+      // Adam changes the learning rate over time which is useful.
+      optimizer: "adam",
+      // Use the correct loss function. If 2 classes of data, must use binaryCrossentropy.
+      // Else categoricalCrossentropy is used if more than 2 classes.
+      loss:
+        CLASS_NAMES.length === 2
+          ? "binaryCrossentropy"
+          : "categoricalCrossentropy",
+      // As this is a classification problem you can record accuracy in the logs too!
+      metrics: ["accuracy"],
+    });
+    return model;
+  };
+
+  async function train() {
+    let shuffle = true;
+    let batchSize = 5;
+    let epochs = 10;
+
     tf.util.shuffleCombo(trainingDataInputs, trainingDataOutputs);
     let outputsAsTensor = tf.tensor1d(trainingDataOutputs, "int32");
     let oneHotOutputs = tf.oneHot(outputsAsTensor, CLASS_NAMES.length);
     let inputsAsTensor = tf.stack(trainingDataInputs);
+    console.log("werty = ", outputsAsTensor);
 
     let results = await model().fit(inputsAsTensor, oneHotOutputs, {
       shuffle: shuffle,
@@ -234,7 +281,11 @@ const KlasifikasiLogic = () => {
   const predict = (image) => {
     tf.tidy(function () {
       let imageFrameAsTensor = tf.browser.fromPixels(image).div(255);
-      let resizedTensorFrame = tf.image.resizeBilinear(imageFrameAsTensor, [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH], true);
+      let resizedTensorFrame = tf.image.resizeBilinear(
+        imageFrameAsTensor,
+        [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH],
+        true
+      );
 
       let imageFeatures = mobilenet.predict(resizedTensorFrame.expandDims());
       let prediction = model().predict(imageFeatures).squeeze();
@@ -278,21 +329,6 @@ const KlasifikasiLogic = () => {
         });
       }
     });
-  };
-
-  const loadImageTest = () => {
-    const base = "dataset/baik";
-    const im = new Image();
-    // im.src = "/dataset/baik/20.jpg";
-    im.src = `/${base}/1.jpg`;
-    // const ctx = ref.current.getContext("2d");
-
-    im.onload = () => {
-      // const width = im.naturalWidth;
-      // const height = im.naturalHeight;
-
-      predict(im);
-    };
   };
 
   function logProgress(epoch, logs) {

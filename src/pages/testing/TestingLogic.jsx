@@ -1,6 +1,5 @@
 import { createRef, useEffect } from "react";
 import * as tf from "@tensorflow/tfjs";
-import * as tfvis from "@tensorflow/tfjs-vis";
 import { useState } from "react";
 
 const TestingLogic = () => {
