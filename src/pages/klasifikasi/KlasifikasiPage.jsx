@@ -61,8 +61,9 @@ const KlasifikasiPage = () => {
             )}
           </div>
           <input type="file" accept="image/*" style={{ display: "none" }} ref={value.fileInputRef} onChange={func.onChangeUploadImage} />
-          <LoadingButton className="btn-upload" loading={value.loading} variant="contained" onClick={!value.loading ? func.uploadClick : null}>
-            {!value.loading ? "Upload Image" : ""}
+          <LoadingButton className="btn-upload"  variant="contained" onClick={!value.loading ? func.uploadClick : null}>
+            {/* {!value.loading ? "Upload Image" : ""} */}
+            {value.prosesLoading}
           </LoadingButton>
         </Grid>
         <Grid className="grid-2" item xs={6}>

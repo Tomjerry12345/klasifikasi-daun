@@ -39,6 +39,7 @@ const KlasifikasiLogic = () => {
   const [stateSum, setStateSum] = useState(0);
 
   const [loading, setLoading] = useState(true);
+  const [prosesLoading, setProsesLoading] = useState("Waiting processing ...");
 
   const [open, setOpen] = useState(false);
 
@@ -46,7 +47,7 @@ const KlasifikasiLogic = () => {
 
   const path = process.env.PUBLIC_URL;
 
-  const jumlahData = 40;
+  const jumlahData = 100;
   let proses = 1;
   let endProses = jumlahData * CLASS_NAMES.length;
 
@@ -177,6 +178,7 @@ const KlasifikasiLogic = () => {
             // console.log("image", im.src);
             const p = endProses / 100;
             console.log(`proses`, `${parseFloat(proses / p).toFixed(2)}%`);
+            setProsesLoading(`processing image => ${parseFloat(proses / p).toFixed(2)}%`)
             const image = getImageData(im);
             proses++;
             resolve(image);
@@ -246,6 +248,7 @@ const KlasifikasiLogic = () => {
   };
 
   async function train() {
+    setProsesLoading("processing training ...")
     let shuffle = true;
     let batchSize = 5;
     let epochs = 10;
@@ -254,7 +257,6 @@ const KlasifikasiLogic = () => {
     let outputsAsTensor = tf.tensor1d(trainingDataOutputs, "int32");
     let oneHotOutputs = tf.oneHot(outputsAsTensor, CLASS_NAMES.length);
     let inputsAsTensor = tf.stack(trainingDataInputs);
-    console.log("werty = ", outputsAsTensor);
 
     let results = await model().fit(inputsAsTensor, oneHotOutputs, {
       shuffle: shuffle,
@@ -271,9 +273,8 @@ const KlasifikasiLogic = () => {
     oneHotOutputs.dispose();
     inputsAsTensor.dispose();
 
-    console.log("selesai");
-
     setLoading(false);
+    setProsesLoading("Upload Image")
 
     // loadImageTest();
   }
@@ -362,6 +363,7 @@ const KlasifikasiLogic = () => {
       imageRef,
       open,
       detail,
+      prosesLoading
     },
     func: {
       onChangeUploadImage,
